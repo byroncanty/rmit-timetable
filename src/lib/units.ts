@@ -10,10 +10,10 @@ export const DEFAULT_UNIT_NAMES: Record<string, string> = {
 // Short (two words max) labels for the key at the top of the page only; cards keep the names above.
 export const KEY_NAMES: Record<string, string> = {
   BSBXCS402: 'Workplace Cyber',
-  ICTNWK542: 'Enterprise Routers',
+  ICTNWK542: 'Networking Fundamentals',
   ICTNWK420: 'Virtual Machines',
-  ICTPRG430: 'Intro OOP',
-  ICTSAS527: 'Client Problems',
+  ICTPRG430: 'Programming',
+  ICTSAS527: 'UX Design',
 };
 
 // Well-separated OKLCH hues; cards derive light/dark shades from these in CSS.
