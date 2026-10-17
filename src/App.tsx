@@ -8,7 +8,6 @@ import { Key } from './components/Key';
 import { NextClass } from './components/NextClass';
 import { WeekGrid, type DayColumn } from './components/WeekGrid';
 import { useLocalState, useMediaQuery, useNow, useTheme } from './hooks';
-import type { DeliveryMode } from './lib/delivery';
 import { loadFeed, type FeedResult } from './lib/feed';
 import { parseIcs } from './lib/ical';
 import { checkRoomChanges } from './lib/nextClass';
@@ -34,7 +33,6 @@ export default function App() {
   const [names, setNames] = useLocalState<Record<string, string>>('timetable:names', {});
   const [hiddenUnits, setHiddenUnits] = useLocalState<string[]>('timetable:hiddenUnits', []);
   const [hiddenActivities, setHiddenActivities] = useLocalState<string[]>('timetable:hiddenActivities', []);
-  const [hiddenModes, setHiddenModes] = useLocalState<DeliveryMode[]>('timetable:hiddenModes', []);
   const [view, setView] = useLocalState<View>('timetable:view', 'week');
   const [state, setState] = useState<FeedState>({ status: 'loading' });
   const [reloadTick, setReloadTick] = useState(0);
@@ -101,12 +99,10 @@ export default function App() {
   const hueMap = useMemo(() => buildHueMap(units.map((u) => u.code)), [units]);
   const hueFor = useCallback((code: string) => hueOf(hueMap, code), [hueMap]);
 
-  // Unit/activity filters first; the key's in-person/online toggles apply on top.
-  const filtered = useMemo(
+  const visible = useMemo(
     () => events.filter((e) => !hiddenUnits.includes(e.unitCode) && !hiddenActivities.includes(e.activity)),
     [events, hiddenUnits, hiddenActivities],
   );
-  const visible = useMemo(() => filtered.filter((e) => !hiddenModes.includes(e.mode)), [filtered, hiddenModes]);
   const term = useMemo(() => termInfo(events), [events]);
   const range = useMemo(() => gridRange(events), [events]);
   const todayKey = dateKey(now);
@@ -167,12 +163,6 @@ export default function App() {
   });
   const todayWeekday = columns.find((c) => c.isToday)?.weekday ?? null;
 
-  // Key counts ignore the mode toggles, so a hidden category still shows how many classes it holds.
-  const modeCounts = useMemo(() => {
-    const pool = typicalView ? typicalWeek(filtered, term?.breakWeeks).map((t) => t.event) : eventsInWeek(filtered, week);
-    const shown = pool.filter((e) => isTeachingDay(e.weekday));
-    return { 'in-person': shown.filter((e) => e.mode === 'in-person').length, online: shown.filter((e) => e.mode === 'online').length };
-  }, [filtered, typicalView, week, term]);
   const animKey = typicalView ? 'typical' : week;
 
   const exportPng = async () => {
@@ -193,7 +183,6 @@ export default function App() {
     setNames({});
     setHiddenUnits([]);
     setHiddenActivities([]);
-    setHiddenModes([]);
   };
 
   const breakWeek = !!term && !typicalView && isBreakWeek(week, term);
@@ -324,9 +313,6 @@ export default function App() {
 
           <div className="mt-4">
             <Key
-              counts={modeCounts}
-              hiddenModes={hiddenModes}
-              onToggleMode={(m) => setHiddenModes((h) => (h.includes(m) ? h.filter((x) => x !== m) : [...h, m]))}
               activities={activities}
               units={units.map((u) => ({ code: u.code, name: KEY_NAMES[u.code] ?? (friendlyNames[u.code] || u.shortName), title: `${u.code} · ${friendlyNames[u.code] || u.shortName}` }))}
               hueFor={hueFor}
@@ -363,7 +349,7 @@ export default function App() {
               />
             )}
             {!typicalView && !breakWeek && gridItems.length === 0 && showGrid && (
-              <p className="mt-3 text-center text-sm text-zinc-500 dark:text-zinc-400">No classes this week{hiddenUnits.length + hiddenActivities.length + hiddenModes.length ? ' (some classes are hidden)' : ''}.</p>
+              <p className="mt-3 text-center text-sm text-zinc-500 dark:text-zinc-400">No classes this week{hiddenUnits.length + hiddenActivities.length ? ' (some classes are hidden)' : ''}.</p>
             )}
           </main>
 
