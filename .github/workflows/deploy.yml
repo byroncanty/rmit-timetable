@@ -1,0 +1,68 @@
+name: Deploy to GitHub Pages
+
+# Builds the site and publishes it with a fresh copy of the timetable feed.
+# GitHub Pages can't run server code, so this job is what "checks rooms": it re-fetches
+# ICAL_URL (a repository secret) on every push and every 30 minutes.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '*/30 * * * *' # GitHub may start scheduled runs a few minutes late
+  workflow_dispatch:
+
+permissions:
+  contents: write # only for the keep-alive commit at the end
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Test
+        if: github.event_name != 'schedule'
+        run: npm test
+
+      - run: npm run build
+
+      - name: Fetch the timetable feed
+        env:
+          ICAL_URL: ${{ secrets.ICAL_URL }}
+        run: node scripts/fetch-feed.ts dist/timetable.ics
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+      # GitHub turns off scheduled workflows in public repos after 60 days without a commit.
+      - name: Keep the schedule alive
+        if: github.event_name == 'schedule'
+        run: |
+          last=$(git log -1 --format=%ct)
+          if [ $(( $(date +%s) - last )) -gt $(( 45 * 86400 )) ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit --allow-empty -m "Keep scheduled timetable refresh alive"
+            git push
+          fi
