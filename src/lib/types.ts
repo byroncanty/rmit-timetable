@@ -6,7 +6,9 @@ export interface Room {
   building: string;
   level: string;
   room: string;
-  label: string; // "Bldg 57 · Lvl 6 · Rm 002"
+  name: string; // "Building #57"
+  label: string; // "Building #57 · Level 6 · Room 002"
+  short: string; // "B #57 · L6 · R002", for narrow cards
 }
 
 export interface TimetableEvent {

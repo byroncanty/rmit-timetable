@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { durationLabel, minToLabel } from '../lib/time';
+import { minToLabel } from '../lib/time';
 import type { GridItem } from '../lib/types';
 import { ModeBadge, WhereTag, ariaLabel, cardClass, pillClass } from './EventCard';
 
@@ -35,7 +35,7 @@ function DayList({ day, hueFor, onSelect }: { day: AgendaDay; hueFor: Props['hue
               onClick={() => onSelect(item)}
               aria-label={ariaLabel(item)}
               style={{ '--h': hueFor(e.unitCode) } as CSSProperties}
-              className={`${cardClass(e.mode)} flex w-full gap-3 rounded-xl border-l-4 p-3 text-left shadow-sm ring-1 ring-black/5 transition hover:shadow-md focus-visible:outline-2 focus-visible:outline-indigo-500 dark:ring-white/10`}
+              className={`${cardClass(e.mode)} @container flex w-full gap-3 rounded-xl border-l-4 p-3 text-left shadow-sm ring-1 ring-black/5 transition hover:shadow-md focus-visible:outline-2 focus-visible:outline-indigo-500 dark:ring-white/10`}
             >
               <div className="w-[4.75rem] shrink-0 text-sm font-semibold whitespace-nowrap tabular-nums">
                 {minToLabel(item.startMin)}
@@ -52,9 +52,8 @@ function DayList({ day, hueFor, onSelect }: { day: AgendaDay; hueFor: Props['hue
                   <ModeBadge mode={e.mode} className="ml-auto" />
                 </div>
                 <div className="truncate text-sm font-medium">{e.unitName}</div>
-                <div className="mt-0.5 flex items-center gap-1.5 text-xs opacity-80">
+                <div className="mt-0.5 flex min-w-0 text-xs opacity-80">
                   <WhereTag event={e} className="font-medium" />
-                  <span>· {durationLabel(item.endMin - item.startMin)}</span>
                 </div>
                 {item.subtitle && <div className="text-xs opacity-70">{item.subtitle}</div>}
               </div>

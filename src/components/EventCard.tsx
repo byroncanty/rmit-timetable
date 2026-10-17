@@ -56,13 +56,24 @@ export function ModeBadge({
   );
 }
 
-/** Icon + room (in person) or "Canvas" (online). */
+/**
+ * Icon + room (in person) or "Canvas" (online). Inside a narrow @container the room
+ * switches from "Building 57 · Level 6 · Room 002" to "B57 · L6 · R002".
+ */
 export function WhereTag({ event: e, className = '' }: { event: TimetableEvent; className?: string }) {
   const Icon = e.mode === 'online' ? Laptop : MapPin;
+  const room = e.mode === 'in-person' ? e.room : undefined;
   return (
     <span className={`inline-flex min-w-0 items-center gap-1 ${className}`} title={`${DELIVERY[e.mode].label}: ${whereShort(e.mode, e.location, e.room)}`}>
       <Icon width={12} height={12} className={`shrink-0 ${MODE_ICON_COLOR[e.mode]}`} />
-      <span className="truncate">{whereShort(e.mode, e.location, e.room)}</span>
+      {room ? (
+        <>
+          <span className="hidden truncate @[15rem]:inline">{room.label}</span>
+          <span className="truncate @[15rem]:hidden">{room.short}</span>
+        </>
+      ) : (
+        <span className="truncate">{whereShort(e.mode, e.location, e.room)}</span>
+      )}
     </span>
   );
 }

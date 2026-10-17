@@ -82,7 +82,7 @@ src/lib/ical.ts          ical.js → TimetableEvent[]
 src/lib/parseSummary.ts  summary → unit / name / activity / group; description → course + campus code
 src/lib/delivery.ts      in person vs online (Canvas), campus names, Canvas + directions links
 src/lib/nextClass.ts     current / next class, next building, room-change check
-src/lib/rooms.ts         "057.06.002" → Bldg 57 · Lvl 6 · Rm 002
+src/lib/rooms.ts         "057.06.002" → Building #57 · Level 6 · Room 002 (short: B #57 · L6 · R002)
 src/lib/weeks.ts         Mon–Thu weeks, teaching weeks, typical-week grouping, grid range
 src/lib/layout.ts        overlap column layout
 src/lib/units.ts         friendly unit names + colour assignment

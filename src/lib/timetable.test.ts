@@ -53,7 +53,14 @@ describe('parseDescription', () => {
 
 describe('parseRoom', () => {
   it('formats RMIT room codes', () => {
-    expect(parseRoom('057.06.002')).toEqual({ building: '57', level: '6', room: '002', label: 'Bldg 57 · Lvl 6 · Rm 002' });
+    expect(parseRoom('057.06.002')).toEqual({
+      building: '57',
+      level: '6',
+      room: '002',
+      name: 'Building #57',
+      label: 'Building #57 · Level 6 · Room 002',
+      short: 'B #57 · L6 · R002',
+    });
   });
   it('treats "-" as no room', () => {
     expect(parseRoom('-')).toBeUndefined();
@@ -67,7 +74,7 @@ describe('parseIcs (real feed fixture)', () => {
 
   it('unescapes text and resolves locations', () => {
     const e = events.find((x) => x.location === '057.06.002')!;
-    expect(e.room?.label).toBe('Bldg 57 · Lvl 6 · Rm 002');
+    expect(e.room?.label).toBe('Building #57 · Level 6 · Room 002');
     expect(events.every((x) => !x.raw.summary.includes('\\,'))).toBe(true);
     expect(events.filter((x) => x.location === null).length).toBe(60);
   });

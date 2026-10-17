@@ -51,7 +51,7 @@ function WherePanel({ event: e, was }: { event: TimetableEvent; was?: string | n
       <div className="flex flex-wrap items-center gap-2 text-xs font-semibold tracking-wide uppercase">
         <ModeBadge mode="in-person" size="md" /> <span className="opacity-80">{campusName(e.campusCode)}</span>
       </div>
-      <div className="mt-1 text-3xl font-semibold tracking-tight">{e.room ? `Building ${e.room.building}` : e.location}</div>
+      <div className="mt-1 text-3xl font-semibold tracking-tight">{e.room ? e.room.name : e.location}</div>
       {e.room && (
         <div className="text-sm opacity-80">
           Level {e.room.level} · Room {e.room.room} <span className="font-mono text-xs opacity-70">({e.location})</span>
@@ -160,7 +160,7 @@ export function NextClass({ events, roomChanges, checkedAt, offline, hueFor, onS
           <span className="inline-flex items-center gap-1.5 font-semibold text-zinc-500 dark:text-zinc-400">
             <MapPin width={15} height={15} className={MODE_ICON_COLOR['in-person']} /> Next building
           </span>
-          <span className="font-semibold">{nextOnCampus.room ? `Building ${nextOnCampus.room.building}` : nextOnCampus.location}</span>
+          <span className="font-semibold">{nextOnCampus.room ? nextOnCampus.room.name : nextOnCampus.location}</span>
           {nextOnCampus.room && (
             <span className="text-zinc-600 dark:text-zinc-300">
               Level {nextOnCampus.room.level} · Room {nextOnCampus.room.room}
