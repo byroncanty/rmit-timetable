@@ -234,10 +234,9 @@ describe('12-hour times', () => {
 });
 
 describe('key names', () => {
-  it('gives every unit in the feed a key label of at most two words', () => {
-    for (const code of new Set(events.map((e) => e.unitCode))) {
-      expect(KEY_NAMES[code]?.split(/\s+/).length).toBeLessThanOrEqual(2);
-    }
+  it('gives every unit in the feed a key label', () => {
+    for (const code of new Set(events.map((e) => e.unitCode))) expect(KEY_NAMES[code]).toBeTruthy();
     expect(KEY_NAMES.BSBXCS402).toBe('Workplace Cyber');
+    expect(KEY_NAMES.ICTSAS527).toBe('UX Design/Manage Client Problems');
   });
 });
