@@ -7,7 +7,7 @@ import { fmtTime, hourLabel, liveCountdown, minToLabel, timeRange } from './time
 import { layoutDay } from './layout';
 import { parseDescription, parseSummary } from './parseSummary';
 import { parseRoom } from './rooms';
-import { gridRange, initialWeek, termInfo, typicalWeek, weekLabel } from './weeks';
+import { gridRange, initialWeek, isBreakWeek, teachingWeek, termInfo, typicalWeek, weekLabel } from './weeks';
 
 const feed = readFileSync(new URL('./__fixtures__/feed.ics', import.meta.url), 'utf8');
 const events = parseIcs(feed);
@@ -118,10 +118,19 @@ describe('weeks', () => {
     expect(initialWeek(term, '2026-01-05')).toBe('2026-08-31');
   });
 
-  it('collapses the term into nine regular classes', () => {
-    const typical = typicalWeek(events);
+  it('treats 2–5 Nov as a break and skips it in week numbers', () => {
+    expect([...term.breakWeeks]).toEqual(['2026-11-02']);
+    expect(isBreakWeek('2026-11-02', term)).toBe(true);
+    expect(teachingWeek('2026-10-26', term)).toBe(9);
+    expect(teachingWeek('2026-11-09', term)).toBe(10);
+    expect(teachingWeek(term.lastWeek, term)).toBe(15);
+  });
+
+  it('collapses the term into nine regular classes without "skipped" badges for the break', () => {
+    const typical = typicalWeek(events, term.breakWeeks);
     expect(typical).toHaveLength(9);
     expect(typical.every((t) => t.sessions.length === 15)).toBe(true);
+    expect(typical.every((t) => t.missing === 0 && !t.badge)).toBe(true);
   });
 
   it('labels weeks Monday to Thursday', () => {

@@ -1,4 +1,4 @@
-import { addDaysKey, fmtKey, mondayOf, weeksBetween } from './time';
+import { addDaysKey, addWeeksKey, fmtKey, mondayOf, weeksBetween } from './time';
 import type { GridItem, TimetableEvent } from './types';
 
 /** Classes only run Monday to Thursday. */
@@ -10,16 +10,29 @@ export interface TermInfo {
   firstWeek: string;
   lastWeek: string;
   weeksWithClasses: Set<string>;
+  breakWeeks: Set<string>; // weeks inside the term with no classes at all, e.g. 2–5 Nov
 }
 
+/** Pass all events (not filtered ones), so a week only counts as a break when nothing is on. */
 export function termInfo(events: TimetableEvent[]): TermInfo | null {
   if (!events.length) return null;
   const weeks = events.map((e) => e.weekKey).sort();
-  return { firstWeek: weeks[0], lastWeek: weeks[weeks.length - 1], weeksWithClasses: new Set(weeks) };
+  const firstWeek = weeks[0];
+  const lastWeek = weeks[weeks.length - 1];
+  const weeksWithClasses = new Set(weeks);
+  const breakWeeks = new Set<string>();
+  for (let w = firstWeek; w <= lastWeek; w = addWeeksKey(w, 1)) if (!weeksWithClasses.has(w)) breakWeeks.add(w);
+  return { firstWeek, lastWeek, weeksWithClasses, breakWeeks };
 }
 
-/** Teaching week number, counted from the week of the first class. */
-export const teachingWeek = (weekKey: string, term: TermInfo) => weeksBetween(term.firstWeek, weekKey) + 1;
+export const isBreakWeek = (weekKey: string, term: TermInfo) => term.breakWeeks.has(weekKey);
+
+/** Teaching week number, counted from the first class and skipping break weeks. */
+export function teachingWeek(weekKey: string, term: TermInfo): number {
+  let breaks = 0;
+  for (const b of term.breakWeeks) if (b <= weekKey) breaks++;
+  return weeksBetween(term.firstWeek, weekKey) + 1 - breaks;
+}
 
 export const inTerm = (weekKey: string, term: TermInfo) => weekKey >= term.firstWeek && weekKey <= term.lastWeek;
 
@@ -45,8 +58,11 @@ export interface TypicalClass extends GridItem {
   missing: number;
 }
 
-/** Collapse the term into one repeating week: one block per class + weekday + time slot. */
-export function typicalWeek(events: TimetableEvent[]): TypicalClass[] {
+/**
+ * Collapse the term into one repeating week: one block per class + weekday + time slot.
+ * Break weeks aren't counted as skipped sessions.
+ */
+export function typicalWeek(events: TimetableEvent[], breakWeeks: Set<string> = new Set()): TypicalClass[] {
   const groups = new Map<string, TimetableEvent[]>();
   for (const e of events) {
     const key = `${e.classKey}|${e.weekday}|${e.startMin}|${e.endMin}`;
@@ -64,7 +80,9 @@ export function typicalWeek(events: TimetableEvent[]): TypicalClass[] {
     const first = sessions[0];
     const last = sessions[sessions.length - 1];
     const weeks = new Set(sessions.map((s) => s.weekKey)).size;
-    const missing = weeksBetween(first.weekKey, last.weekKey) + 1 - weeks;
+    let breaksInRange = 0;
+    for (const b of breakWeeks) if (b > first.weekKey && b < last.weekKey) breaksInRange++;
+    const missing = weeksBetween(first.weekKey, last.weekKey) + 1 - breaksInRange - weeks;
     const irregular = sessions.length < (maxPerClass.get(first.classKey) ?? 0) / 2;
     const range = sessions.length > 1 ? `${fmtKey(first.dateKey, 'd MMM')} – ${fmtKey(last.dateKey, 'd MMM')}` : fmtKey(first.dateKey, 'd MMM');
     return {

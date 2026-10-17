@@ -15,7 +15,7 @@ import { checkRoomChanges } from './lib/nextClass';
 import { addDaysKey, addWeeksKey, dateKey, fmtKey, isoWeekday, minutesOfDay, mondayOf } from './lib/time';
 import type { GridItem, TimetableEvent } from './lib/types';
 import { DEFAULT_UNIT_NAMES, buildHueMap, hueOf } from './lib/units';
-import { WEEKDAYS, eventsInWeek, gridRange, inTerm, initialWeek, isTeachingDay, teachingWeek, termInfo, toGridItem, typicalWeek, weekLabel } from './lib/weeks';
+import { WEEKDAYS, eventsInWeek, gridRange, inTerm, initialWeek, isBreakWeek, isTeachingDay, teachingWeek, termInfo, toGridItem, typicalWeek, weekLabel } from './lib/weeks';
 
 type View = 'week' | 'typical' | 'agenda';
 type FeedState = { status: 'loading'; previous?: FeedResult } | { status: 'ready'; feed: FeedResult } | { status: 'error'; message: string };
@@ -120,7 +120,7 @@ export default function App() {
 
   const week = weekKey ?? thisWeek;
   const weekEvents = useMemo(() => eventsInWeek(visible, week).filter((e) => isTeachingDay(e.weekday)), [visible, week]);
-  const typical = useMemo(() => typicalWeek(visible).filter((t) => isTeachingDay(t.weekday)), [visible]);
+  const typical = useMemo(() => typicalWeek(visible, term?.breakWeeks).filter((t) => isTeachingDay(t.weekday)), [visible, term]);
   const gridItems: GridItem[] = view === 'typical' ? typical : weekEvents.map(toGridItem);
 
   const moveWeek = useCallback((delta: number) => {
@@ -169,10 +169,10 @@ export default function App() {
 
   // Key counts ignore the mode toggles, so a hidden category still shows how many classes it holds.
   const modeCounts = useMemo(() => {
-    const pool = typicalView ? typicalWeek(filtered).map((t) => t.event) : eventsInWeek(filtered, week);
+    const pool = typicalView ? typicalWeek(filtered, term?.breakWeeks).map((t) => t.event) : eventsInWeek(filtered, week);
     const shown = pool.filter((e) => isTeachingDay(e.weekday));
     return { 'in-person': shown.filter((e) => e.mode === 'in-person').length, online: shown.filter((e) => e.mode === 'online').length };
-  }, [filtered, typicalView, week]);
+  }, [filtered, typicalView, week, term]);
   const animKey = typicalView ? 'typical' : week;
 
   const exportPng = async () => {
@@ -196,7 +196,8 @@ export default function App() {
     setHiddenModes([]);
   };
 
-  const weekNo = term && !typicalView ? (inTerm(week, term) ? `Week ${teachingWeek(week, term)}` : 'Outside term') : null;
+  const breakWeek = !!term && !typicalView && isBreakWeek(week, term);
+  const weekNo = term && !typicalView ? (!inTerm(week, term) ? 'Outside term' : breakWeek ? 'Break week' : `Week ${teachingWeek(week, term)}`) : null;
   const showGrid = !isMobile && view !== 'agenda';
   const error = state.status === 'error' ? state.message : parsed.error;
 
@@ -332,6 +333,12 @@ export default function App() {
             />
           </div>
 
+          {breakWeek && (
+            <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200">
+              <span className="font-semibold">Break week</span> · no classes {weekLabel(week)}. Teaching weeks pick up again next week.
+            </div>
+          )}
+
           <main className="mt-4">
             {showGrid ? (
               <WeekGrid
@@ -355,7 +362,7 @@ export default function App() {
                 animKey={animKey}
               />
             )}
-            {!typicalView && gridItems.length === 0 && showGrid && (
+            {!typicalView && !breakWeek && gridItems.length === 0 && showGrid && (
               <p className="mt-3 text-center text-sm text-zinc-500 dark:text-zinc-400">No classes this week{hiddenUnits.length + hiddenActivities.length + hiddenModes.length ? ' (some classes are hidden)' : ''}.</p>
             )}
           </main>
