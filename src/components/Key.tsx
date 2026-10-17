@@ -8,7 +8,7 @@ interface Props {
   hiddenModes: DeliveryMode[];
   onToggleMode: (mode: DeliveryMode) => void;
   activities: string[];
-  units: { code: string; name: string }[];
+  units: { code: string; name: string; title: string }[]; // name: short key label, title: tooltip
   hueFor: (code: string) => number;
 }
 
@@ -53,9 +53,9 @@ export function Key({ counts, hiddenModes, onToggleMode, activities, units, hueF
 
       <div className="flex flex-wrap items-center gap-3 text-zinc-600 dark:text-zinc-300">
         {units.map((u) => (
-          <span key={u.code} className="flex items-center gap-1.5" title={u.name} style={{ '--h': hueFor(u.code) } as CSSProperties}>
+          <span key={u.code} className="flex items-center gap-1.5" title={u.title} style={{ '--h': hueFor(u.code) } as CSSProperties}>
             <span className="unit-dot size-2.5 rounded-full" />
-            {u.code}
+            {u.name}
           </span>
         ))}
       </div>

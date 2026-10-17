@@ -7,6 +7,15 @@ export const DEFAULT_UNIT_NAMES: Record<string, string> = {
   ICTSAS527: 'Manage Client Problems',
 };
 
+// Short (two words max) labels for the key at the top of the page only; cards keep the names above.
+export const KEY_NAMES: Record<string, string> = {
+  BSBXCS402: 'Workplace Cyber',
+  ICTNWK542: 'Enterprise Routers',
+  ICTNWK420: 'Virtual Machines',
+  ICTPRG430: 'Intro OOP',
+  ICTSAS527: 'Client Problems',
+};
+
 // Well-separated OKLCH hues; cards derive light/dark shades from these in CSS.
 const HUES = [255, 155, 25, 305, 70, 195, 345, 120, 220, 0];
 

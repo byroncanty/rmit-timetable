@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { feedGeneratedAt } from './feed';
 import { parseIcs } from './ical';
+import { KEY_NAMES } from './units';
 import { diffRooms, sessionKey, upNext } from './nextClass';
 import { fmtTime, hourLabel, liveCountdown, minToLabel, timeRange } from './time';
 import { layoutDay } from './layout';
@@ -229,5 +230,14 @@ describe('12-hour times', () => {
     expect(timeRange(510, 630)).toBe('8:30–10:30 AM');
     expect(timeRange(780, 1020)).toBe('1:00–5:00 PM');
     expect(timeRange(690, 810)).toBe('11:30 AM – 1:30 PM');
+  });
+});
+
+describe('key names', () => {
+  it('gives every unit in the feed a key label of at most two words', () => {
+    for (const code of new Set(events.map((e) => e.unitCode))) {
+      expect(KEY_NAMES[code]?.split(/\s+/).length).toBeLessThanOrEqual(2);
+    }
+    expect(KEY_NAMES.BSBXCS402).toBe('Workplace Cyber');
   });
 });

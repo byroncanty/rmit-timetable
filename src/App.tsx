@@ -14,7 +14,7 @@ import { parseIcs } from './lib/ical';
 import { checkRoomChanges } from './lib/nextClass';
 import { addDaysKey, addWeeksKey, dateKey, fmtKey, isoWeekday, minutesOfDay, mondayOf } from './lib/time';
 import type { GridItem, TimetableEvent } from './lib/types';
-import { DEFAULT_UNIT_NAMES, buildHueMap, hueOf } from './lib/units';
+import { DEFAULT_UNIT_NAMES, KEY_NAMES, buildHueMap, hueOf } from './lib/units';
 import { WEEKDAYS, eventsInWeek, gridRange, inTerm, initialWeek, isBreakWeek, isTeachingDay, teachingWeek, termInfo, toGridItem, typicalWeek, weekLabel } from './lib/weeks';
 
 type View = 'week' | 'typical' | 'agenda';
@@ -328,7 +328,7 @@ export default function App() {
               hiddenModes={hiddenModes}
               onToggleMode={(m) => setHiddenModes((h) => (h.includes(m) ? h.filter((x) => x !== m) : [...h, m]))}
               activities={activities}
-              units={units.map((u) => ({ code: u.code, name: friendlyNames[u.code] || u.shortName }))}
+              units={units.map((u) => ({ code: u.code, name: KEY_NAMES[u.code] ?? (friendlyNames[u.code] || u.shortName), title: `${u.code} · ${friendlyNames[u.code] || u.shortName}` }))}
               hueFor={hueFor}
             />
           </div>
