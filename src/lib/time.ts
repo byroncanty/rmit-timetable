@@ -5,7 +5,7 @@ export const dateKey = (d: Date) => format(d, 'yyyy-MM-dd');
 export const isoWeekday = (d: Date) => Number(format(d, 'i'));
 export const minutesOfDay = (d: Date) => d.getHours() * 60 + d.getMinutes();
 export const fmt = (d: Date, pattern: string) => format(d, pattern);
-export const fmtTime = (d: Date) => format(d, 'HH:mm');
+export const fmtTime = (d: Date) => format(d, 'h:mm a'); // "8:30 AM"
 
 // Calendar-date keys ("2026-09-02"). Local noon keeps date math clear of DST edges.
 export const keyToDate = (key: string) => new Date(`${key}T12:00:00`);
@@ -16,7 +16,22 @@ export const addWeeksKey = (key: string, n: number) => toKey(addWeeks(keyToDate(
 export const weeksBetween = (a: string, b: string) => Math.round(differenceInCalendarDays(keyToDate(b), keyToDate(a)) / 7);
 export const fmtKey = (key: string, pattern: string) => format(keyToDate(key), pattern);
 
-export const minToLabel = (min: number) => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
+// 12-hour times from minutes since midnight.
+const h24 = (min: number) => Math.floor(min / 60) % 24;
+const h12 = (min: number) => h24(min) % 12 || 12;
+const meridiem = (min: number) => (h24(min) < 12 ? 'AM' : 'PM');
+const clock = (min: number) => `${h12(min)}:${String(min % 60).padStart(2, '0')}`;
+
+/** 510 → "8:30 AM" */
+export const minToLabel = (min: number) => `${clock(min)} ${meridiem(min)}`;
+
+/** Grid hour labels: 540 → "9 AM", 720 → "12 PM" */
+export const hourLabel = (min: number) => `${h12(min)} ${meridiem(min)}`;
+
+/** "8:30–10:30 AM", or "11:30 AM – 1:30 PM" when the class crosses midday. */
+export function timeRange(startMin: number, endMin: number): string {
+  return meridiem(startMin) === meridiem(endMin) ? `${clock(startMin)}–${clock(endMin)} ${meridiem(endMin)}` : `${minToLabel(startMin)} – ${minToLabel(endMin)}`;
+}
 
 export function durationLabel(min: number): string {
   const h = Math.floor(min / 60);

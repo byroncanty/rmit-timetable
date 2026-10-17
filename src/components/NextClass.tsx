@@ -3,18 +3,16 @@ import { formatDistanceToNowStrict } from 'date-fns';
 import { useNow } from '../hooks';
 import { CANVAS_URL, campusName, directionsUrl } from '../lib/delivery';
 import { sessionKey, upNext } from '../lib/nextClass';
-import { countdown, fmt, fmtTime, liveCountdown } from '../lib/time';
+import { countdown, fmt, fmtTime, liveCountdown, timeRange } from '../lib/time';
 import type { TimetableEvent } from '../lib/types';
 import { MODE_ICON_COLOR, ModeBadge, cardClass, pillClass } from './EventCard';
-import { Laptop, MapPin, Refresh } from './icons';
+import { Laptop, MapPin } from './icons';
 
 interface Props {
   events: TimetableEvent[];
   roomChanges: Record<string, string | null>; // session key → previously seen room
   checkedAt?: Date;
   offline: boolean;
-  checking: boolean;
-  onCheck: () => void;
   hueFor: (code: string) => number;
   onSelect: (e: TimetableEvent) => void;
 }
@@ -71,7 +69,7 @@ function WherePanel({ event: e, was }: { event: TimetableEvent; was?: string | n
   );
 }
 
-export function NextClass({ events, roomChanges, checkedAt, offline, checking, onCheck, hueFor, onSelect }: Props) {
+export function NextClass({ events, roomChanges, checkedAt, offline, hueFor, onSelect }: Props) {
   const now = useNow(1000); // live countdown
   const { current, focus, nextOnCampus } = upNext(events, now);
   const changeFor = (e: TimetableEvent) => (sessionKey(e) in roomChanges ? roomChanges[sessionKey(e)] : undefined);
@@ -86,10 +84,6 @@ export function NextClass({ events, roomChanges, checkedAt, offline, checking, o
         {offline ? 'Offline · last checked ' : 'Live · rooms checked '}
         {checkedAt ? formatDistanceToNowStrict(checkedAt, { addSuffix: true }) : '…'}
       </span>
-      <button type="button" onClick={onCheck} disabled={checking} className="inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 font-medium whitespace-nowrap text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 dark:text-indigo-400 dark:hover:bg-indigo-950/50">
-        <Refresh width={12} height={12} className={checking ? 'animate-spin motion-reduce:animate-none' : ''} />
-        Check now
-      </button>
     </div>
   );
 
@@ -136,7 +130,7 @@ export function NextClass({ events, roomChanges, checkedAt, offline, checking, o
           </div>
           <h2 className="mt-2 text-2xl leading-tight font-semibold tracking-tight sm:text-3xl">{focus.unitName}</h2>
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
-            {fmt(focus.start, 'EEEE d MMMM')} · <span className="tabular-nums">{fmtTime(focus.start)}–{fmtTime(focus.end)}</span>
+            {fmt(focus.start, 'EEEE d MMMM')} · <span className="tabular-nums">{timeRange(focus.startMin, focus.endMin)}</span>
           </p>
         </button>
 

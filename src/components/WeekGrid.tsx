@@ -1,6 +1,6 @@
 import { forwardRef, type CSSProperties } from 'react';
 import { layoutDay } from '../lib/layout';
-import { minToLabel } from '../lib/time';
+import { hourLabel } from '../lib/time';
 import type { GridItem } from '../lib/types';
 import { EventCard } from './EventCard';
 
@@ -52,7 +52,7 @@ export const WeekGrid = forwardRef<HTMLDivElement, Props>(function WeekGrid({ it
         <div className="relative">
           {hours.map((m) => (
             <div key={m} className="absolute right-2 -translate-y-1/2 text-[11px] text-zinc-400 tabular-nums dark:text-zinc-500" style={{ top: px(m - range.start) }}>
-              {m > range.start && m < range.end && minToLabel(m)}
+              {m > range.start && m < range.end && hourLabel(m)}
             </div>
           ))}
         </div>

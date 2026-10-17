@@ -47,7 +47,7 @@ export default function App() {
   const isMobile = useMediaQuery('(max-width: 767px)');
   const now = useNow(30_000);
 
-  // Load on start, on "Check now", and on the timers below.
+  // Load on start, on "Try again", and on the timers below.
   useEffect(() => {
     let cancelled = false;
     setState((s) => ({ status: 'loading', previous: s.status === 'ready' ? s.feed : s.status === 'loading' ? s.previous : undefined }));
@@ -241,8 +241,6 @@ export default function App() {
               roomChanges={roomChanges}
               checkedAt={feed?.generatedAt ?? feed?.fetchedAt}
               offline={!!feed?.stale}
-              checking={state.status === 'loading'}
-              onCheck={() => setReloadTick((t) => t + 1)}
               hueFor={hueFor}
               onSelect={(e) => setSelected({ event: e, typical: false })}
             />

@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import { DELIVERY, whereShort, type DeliveryMode } from '../lib/delivery';
-import { minToLabel } from '../lib/time';
+import { minToLabel, timeRange } from '../lib/time';
 import type { GridItem, TimetableEvent } from '../lib/types';
 import { Laptop, MapPin } from './icons';
 
@@ -99,7 +99,7 @@ export function EventCard({ item, hue, onSelect, style, className = '' }: Props)
       {!compact && <div className="mt-0.5 line-clamp-2 text-[13px] leading-snug font-medium">{e.unitName}</div>}
       <div className="mt-auto pt-0.5 text-[11px] leading-tight opacity-80">
         <span className="block tabular-nums">
-          {minToLabel(item.startMin)}–{minToLabel(item.endMin)}
+          {timeRange(item.startMin, item.endMin)}
         </span>
         {!compact && <WhereTag event={e} className="max-w-full font-medium" />}
         {item.subtitle && duration >= 90 && <span className="block truncate opacity-80">{item.subtitle}</span>}

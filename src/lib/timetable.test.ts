@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { feedGeneratedAt } from './feed';
 import { parseIcs } from './ical';
 import { diffRooms, sessionKey, upNext } from './nextClass';
-import { liveCountdown } from './time';
+import { fmtTime, hourLabel, liveCountdown, minToLabel, timeRange } from './time';
 import { layoutDay } from './layout';
 import { parseDescription, parseSummary } from './parseSummary';
 import { parseRoom } from './rooms';
@@ -193,5 +193,25 @@ describe('liveCountdown', () => {
     expect(liveCountdown((2 * 60 + 15) * 60_000)).toBe('2h 15m');
     expect(liveCountdown((12 * 60 + 5) * 1000)).toBe('12m 05s');
     expect(liveCountdown(-5000)).toBe('0m 00s');
+  });
+});
+
+describe('12-hour times', () => {
+  it('labels times with AM and PM', () => {
+    expect(minToLabel(510)).toBe('8:30 AM');
+    expect(minToLabel(720)).toBe('12:00 PM');
+    expect(minToLabel(810)).toBe('1:30 PM');
+    expect(minToLabel(0)).toBe('12:00 AM');
+    expect(fmtTime(new Date(2026, 9, 20, 13, 0))).toBe('1:00 PM');
+  });
+
+  it('labels grid hours', () => {
+    expect([540, 720, 1020].map(hourLabel)).toEqual(['9 AM', '12 PM', '5 PM']);
+  });
+
+  it('shortens ranges within one half of the day', () => {
+    expect(timeRange(510, 630)).toBe('8:30–10:30 AM');
+    expect(timeRange(780, 1020)).toBe('1:00–5:00 PM');
+    expect(timeRange(690, 810)).toBe('11:30 AM – 1:30 PM');
   });
 });

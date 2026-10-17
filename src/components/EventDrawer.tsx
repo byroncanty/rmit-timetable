@@ -1,6 +1,6 @@
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import { CANVAS_URL, DELIVERY, campusName } from '../lib/delivery';
-import { durationLabel, fmt, fmtTime } from '../lib/time';
+import { durationLabel, fmt, fmtTime, timeRange } from '../lib/time';
 import type { TimetableEvent } from '../lib/types';
 import { teachingWeek, type TermInfo } from '../lib/weeks';
 import { ModeBadge, pillClass } from './EventCard';
@@ -55,7 +55,7 @@ export function EventDrawer({ event: e, allEvents, term, hue, now, typical, onCl
             {e.unitName}
           </h2>
           <p className="mt-1 text-sm text-white/85">
-            {typical ? `Every ${fmt(e.start, 'EEEE')}` : fmt(e.start, 'EEEE d MMMM yyyy')} · {fmtTime(e.start)}–{fmtTime(e.end)}
+            {typical ? `Every ${fmt(e.start, 'EEEE')}` : fmt(e.start, 'EEEE d MMMM yyyy')} · {timeRange(e.startMin, e.endMin)}
           </p>
         </header>
 

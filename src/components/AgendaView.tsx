@@ -37,7 +37,7 @@ function DayList({ day, hueFor, onSelect }: { day: AgendaDay; hueFor: Props['hue
               style={{ '--h': hueFor(e.unitCode) } as CSSProperties}
               className={`${cardClass(e.mode)} flex w-full gap-3 rounded-xl border-l-4 p-3 text-left shadow-sm ring-1 ring-black/5 transition hover:shadow-md focus-visible:outline-2 focus-visible:outline-indigo-500 dark:ring-white/10`}
             >
-              <div className="w-14 shrink-0 text-sm font-semibold tabular-nums">
+              <div className="w-[4.75rem] shrink-0 text-sm font-semibold whitespace-nowrap tabular-nums">
                 {minToLabel(item.startMin)}
                 <div className="text-xs font-normal opacity-70">{minToLabel(item.endMin)}</div>
               </div>
