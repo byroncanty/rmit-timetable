@@ -123,7 +123,6 @@ export function AgendaView({ days, single, hueFor, onSelect, onEdge, animKey }: 
           >
             <div className={d.isToday ? 'text-indigo-600 dark:text-indigo-400' : ''}>{d.short}</div>
             {d.sub && <div className="text-[11px] opacity-70">{d.sub.split(' ')[0]}</div>}
-            {d.items.length > 0 && <span className="absolute top-1 right-1.5 size-1.5 rounded-full bg-indigo-400" />}
           </button>
         ))}
       </div>

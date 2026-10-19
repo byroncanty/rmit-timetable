@@ -77,7 +77,6 @@ export function NextClass({ events, roomChanges, checkedAt, offline, hueFor, onS
   const status = (
     <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
       <span className="relative flex size-2">
-        {!offline && <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60 motion-reduce:animate-none" />}
         <span className={`relative inline-flex size-2 rounded-full ${offline ? 'bg-amber-500' : 'bg-emerald-500'}`} />
       </span>
       <span>
